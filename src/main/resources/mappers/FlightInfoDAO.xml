@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.dao.FlightInfoDAO" >
+  <resultMap id="BaseResultMap" type="com.model.FlightInfo" >
+    <constructor >
+      <idArg column="id" jdbcType="BIGINT" javaType="java.lang.Long" />
+      <arg column="depCity" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="arrCity" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="depDate" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="flightNo" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="depTime" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="price" jdbcType="DOUBLE" javaType="java.lang.Double" />
+      <arg column="seat" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="createTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+
+  <sql id="base_col">
+    id,
+    depCity,
+    arrCity,
+    depDate,
+    flightNo,
+    depTime,
+    price,
+    seat,
+    createTime
+  </sql>
+
+  <select id="selectCreateTime" parameterType="map" resultType="java.util.Date">
+    SELECT createTime FROM FlightInfo WHERE depDate=#{depDate} AND flightNo=#{flightNo}
+  </select>
+
+  <select id="selectCreateTimeList" parameterType="map" resultType="java.util.Date">
+    SELECT createTime
+    FROM FlightInfo
+    WHERE depDate = #{depDate}
+    AND depCity = #{depCity}
+    AND arrCity= #{arrCity}
+  </select>
+
+  <insert id="insertFlightInfo" parameterType="com.model.FlightInfo">
+    INSERT INTO
+    FlightInfo(depCity, arrCity,depDate,flightNo,depTime,price,seat,createTime)
+    VALUES
+    (
+    #{flightInfo.depCity},
+    #{flightInfo.arrCity},
+    #{flightInfo.depDate},
+    #{flightInfo.flightNo},
+    #{flightInfo.depTime},
+    #{flightInfo.price},
+    #{flightInfo.seat},
+    now()
+    )
+  </insert>
+
+  <insert id="insertFlightInfoList" parameterType="list">
+    INSERT INTO
+    FlightInfo(depCity, arrCity,depDate,flightNo,depTime,price,seat,createTime)
+    VALUES
+    <foreach collection="flightInfoList" separator="," index="index" item="item">
+      (
+      #{item.depCity},
+      #{item.arrCity},
+      #{item.depDate},
+      #{item.flightNo},
+      #{item.depTime},
+      #{item.price},
+      #{item.seat},
+      now()
+      )
+    </foreach>
+  </insert>
+
+  <update id="updateFlightInfo" parameterType="com.model.FlightInfo">
+    UPDATE FlightInfo
+    SET
+    depCity = #{flightInfo.depCity},
+    arrCity = #{flightInfo.arrCity},
+    depDate = #{flightInfo.depDate},
+    flightNo = #{flightInfo.flightNo},
+    depTime = #{flightInfo.depTime},
+    price = #{flightInfo.price},
+    seat = #{flightInfo.seat},
+    createTime = #{flightInfo.createTime}
+    WHERE
+    id = #{flightInfo.id}
+  </update>
+
+  <update id="updateSeatDown" parameterType="map" keyColumn="id">
+    UPDATE FlightInfo
+    SET
+    seat = seat - #{delta}
+    WHERE
+    id = #{id}
+  </update>
+
+  <update id="updateSeatAndCreateTime" parameterType="com.model.FlightInfo">
+    UPDATE FlightInfo
+    SET
+    seat = #{flightInfo.seat},
+    createTime = now()
+    WHERE
+    depDate = #{flightInfo.depDate}
+    AND
+    flightNo = #{flightInfo.flightNo}
+  </update>
+
+  <select id="selectFlightInfoByDepDateAndFlightNo" parameterType="map"
+                resultType="com.model.FlightInfo">
+    SELECT
+    <include refid="base_col"/>
+    FROM FlightInfo
+    WHERE
+    depDate = #{depDate}
+    AND
+    flightNo = #{flightNo}
+  </select>
+
+  <select id="selectFlightInfoById" parameterType="java.lang.Long" resultType="com.model.FlightInfo">
+    SELECT
+    <include refid="base_col"/>
+    FROM FlightInfo
+    WHERE
+    id = #{id}
+  </select>
+
+  <delete id="deleteFlightInfoById" parameterType="java.lang.Long">
+    DELETE FROM FlightInfo WHERE id = #{id}
+  </delete>
+
+  <delete id="deleteFlightInfoByDepDateAndFlightNo" parameterType="map">
+    DELETE FROM FlightInfo WHERE depDate = #{depDate} AND flightNo = #{flightNo}
+  </delete>
+
+  <select id="selectSearchResult" parameterType="map" resultType="com.model.FlightInfo">
+    SELECT
+    <include refid="base_col"/>
+    FROM FlightInfo
+    WHERE
+    depDate = #{depDate}
+    AND
+    depCity = #{depCity}
+    AND
+    arrCity = #{arrCity}
+    AND
+    seat > #{number}
+  </select>
+
+  <select id="selectSearchResultWithoutPassengerCount" parameterType="map" resultType="com.model.FlightInfo">
+    SELECT
+    <include refid="base_col"/>
+    FROM FlightInfo
+    WHERE
+    depDate = #{depDate}
+    AND
+    depCity = #{depCity}
+    AND
+    arrCity = #{arrCity}
+  </select>
+
+</mapper>
